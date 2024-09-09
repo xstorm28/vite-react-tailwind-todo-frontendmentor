@@ -1,5 +1,7 @@
 
-import { Cross, Moon } from "./components/icons"
+
+import { Cross } from "./componentes/Icons/Cross"
+import { Moon } from "./componentes/Icons/Moon"
 
 
 export default function App() {
@@ -9,7 +11,7 @@ export default function App() {
          <div className="flex justify-between">
            <h1 className="uppercase  text-white text-4xl font-bold tracking-[0.3em]"> todo </h1>
            <button> 
-             <Moon fill="#fff"/>
+            <Moon fill="#000"/>
            </button>
          </div>
         <form className=" flex overflow-hidden rounded-md bg-white py-4 gap-4 items-center px-4 mt-9">
