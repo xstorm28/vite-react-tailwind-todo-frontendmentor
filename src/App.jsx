@@ -1,20 +1,30 @@
-import { useState } from "react"
+import { DragDropContext } from "@hello-pangea/dnd";
+import { useState, useEffect} from "react"
 import { Header } from "./componentes/Header"
 import { TodoComputed } from "./componentes/TodoComputed"
 import { TodoCreate } from "./componentes/TodoCreate"
 import { TodoFilter } from "./componentes/TodoFilter"
 import { TodoList } from "./componentes/TodoList"
 
-const initialstateTodos = [
-  {id:1, title:"Go to the gym", completed: true},
-  {id:2, title:"Study", completed: false},
-  {id:3, title:"workout", completed: false},
-  {id:4, title:"10 minutes medi", completed: false},
-  {id:5, title:"pickup groceries", completed: false},
-]
+const initialstateTodos = JSON.parse(localStorage.getItem("todos")) || [];
+
+const reorder = (list, startIndex, endIndex) => {
+  const result = [...list];
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
+
+  return result;
+};
+
+
+
 export default function App() {
   const [todos, setTodos] = useState(initialstateTodos)
 
+  useEffect(() => {
+    localStorage.setItem("todos",JSON.stringify(todos))
+  }, [todos])
+  
   const createTodo = (title) => {
     const newTodo = {
       id : Date.now(),
@@ -51,12 +61,38 @@ export default function App() {
         return todos;
     }
   }
+
+  const handleDragEnd = (result) => {
+    const { destination, source } = result;
+    if (!destination) return;
+    if (
+        source.index === destination.index &&
+        source.droppableId === destination.droppableId
+    )
+        return;
+
+    setTodos((prevTasks) =>
+        reorder(prevTasks, source.index, destination.index)
+    );
+};
   return (
-    <div className="min-h-screen bg-gray-300 bg-[url('./assets/images/bg-mobile-light.jpg')] bg-contain bg-no-repeat dark:bg-gray-900 dark:bg-[url('./assets/images/bg-mobile-dark.jpg')] transition-all duration-1000 ">
+    <div className="min-h-screen
+      bg-gray-200
+      bg-[url('./assets/images/bg-mobile-light.jpg')] 
+      bg-contain 
+      bg-no-repeat
+      transition-all duration-1000
+      dark:bg-gray-900 
+      dark:bg-[url('./assets/images/bg-mobile-dark.jpg')] 
+         md:bg-[url('./assets/images/bg-desktop-light.jpg')]
+         md:dark:bg-[url('./assets/images/bg-desktop-dark.jpg')]
+         ">
        <Header/>
-       <main className="container mx-auto mt-8 px-4 ">         
-         <TodoCreate createTodo= {createTodo}/>             
-         <TodoList todos={filteredTodos()} removeTodo={removeTodo} uptadeTodo={uptadeTodo}/>   
+       <main className="container mx-auto mt-8 px-4 md:max-w-xl">         
+         <TodoCreate createTodo= {createTodo}/> 
+         <DragDropContext onDragEnd={handleDragEnd}>
+           <TodoList todos={filteredTodos()} removeTodo={removeTodo} uptadeTodo={uptadeTodo}/>   
+         </DragDropContext>            
          <TodoComputed countTodo={countTodo} clearCompleted={clearCompleted}/>
          <TodoFilter changeFilter={changeFilter} filter={filter} />
       </main>
